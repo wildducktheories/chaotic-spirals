@@ -6,21 +6,17 @@ class SpiralPlotter:
 
     def spiral(self, n, length=None, yield_forward_only=False):
         length = n ** 2 if length is None else length
-
+        R = complex(np.cos(2*math.pi/n), np.sin(2*math.pi/n))
         LEFT    = [
                     [1, 1, 0],
-                    [
-                        0,
-                        complex(np.cos(2*math.pi/n), np.sin(2*math.pi/n)),
-                        0
-                    ],
-                    [0,1,0]
+                    [0, R, 0]
+                    [0, 1, 0]
                   ]
 
         FORWARD = [
-                    [1,1,0],
-                    [0,1,0],
-                    [0,1,0]
+                    [1, 1, 0],
+                    [0, 1, 0],
+                    [0, 1, 0]
                   ]
 
         state = [
