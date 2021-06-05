@@ -9,7 +9,7 @@ class SpiralPlotter:
         R = complex(np.cos(2*math.pi/n), np.sin(2*math.pi/n))
         LEFT    = [
                     [1, 1, 0],
-                    [0, R, 0]
+                    [0, R, 0],
                     [0, 1, 0]
                   ]
 
