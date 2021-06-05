@@ -4,49 +4,59 @@ import numpy as np
 
 class SpiralPlotter:
 
-    def I(self, n):
-        return ((0,0), None, None, None) # wrong
+    def spiral(self, n, length=None, yield_forward_only=False):
+        length = n ** 2 if length is None else length
 
-    def XY(self, p):
-        return p # wrong
+        LEFT    = [
+                    [1, 1, 0],
+                    [
+                        0,
+                        complex(np.cos(2*math.pi/n), np.sin(2*math.pi/n)),
+                        0
+                    ],
+                    [0,1,0]
+                  ]
 
-    def SUCC_V(self, v, xy):
-        return v # wrong
+        FORWARD = [
+                    [1,1,0],
+                    [0,1,0],
+                    [0,1,0]
+                  ]
 
-    def SUCC_P(self, p, d):
-        return p # wrong
+        state = [
+            complex(0,0), # position
+            complex(1,0), # heading
+            complex(0,0)  # previous heading
+        ]
 
-    def SUCC_D(self, d, r):
-        return d # wrong
+        visited = set()
 
-    def C(self, q, v):
-        return False # wrong
+        to_xy = lambda state: (round(state[0].real,8), round(state[0].imag, 8))
 
-    def spiral(self, L, n):
-        P,D,R,V=self.I(n)
+        while length > 0:
+            xy = to_xy(state)
+            visited.add(xy)
+            if not yield_forward_only or (yield_forward_only and state[1]==state[2]):
+                length = length - 1
+                yield xy
 
-        while L > 0:
-            L = L -1
+            next = np.matmul(LEFT, state)
+            if to_xy(np.matmul(LEFT, next)) in visited:
+                next = np.matmul(FORWARD, state)
 
-            xy = self.XY(P)
-            V = self.SUCC_V(V, xy)
-            yield xy
+            state = next
 
-            P = self.SUCC_P(P, D)
-
-            e = self.SUCC_D(D, R)
-            q = self.SUCC_P(P, e)
-
-            if not self.C(self.XY(q), V):
-                D = e
-
-    def plot_spiral(self, n, s):
+    def plot_spiral(self, n, s, plot=True, scatter=True, title=None):
         v = np.array([(np.array(p)) for p in s])
         fig = plt.figure(figsize=(6,6))
         ax=plt.axes()
         #ax.set_facecolor('#f1c738')
-        plt.title(f"n={n}")
+        if not title:
+            title=f"n={n}"
+        plt.title(title)
         plt.gca().set_aspect("equal")
-        plt.plot(v[:,0], v[:,1])
-        plt.scatter(v[:,0], v[:,1])
+        if plot:
+            plt.plot(v[:,0], v[:,1])
+        if scatter:
+            plt.scatter(v[:,0], v[:,1], marker=".")
         plt.show()

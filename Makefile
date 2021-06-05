@@ -1,10 +1,10 @@
-docker:
+docker-build:
 	docker-compose build spirals
 
-docker-run:
+docker-run: docker-build
 	docker-compose up -d spirals
 
-token:
+docker-token:
 	@docker-compose exec -T spirals jupyter notebook list | sed -n "s/.*token=\([^ ]*\) .*/\1/p"
 
 local-build:
