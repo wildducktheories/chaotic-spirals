@@ -2,10 +2,8 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
-class SpiralPlotter:
-
-    def spiral(self, n, length=None, yield_forward_only=False):
-        length = n ** 2 if length is None else length
+class MatrixState:
+    def init(n):
         R = complex(np.cos(2*math.pi/n), np.sin(2*math.pi/n))
         LEFT    = [
                     [1, 1, 0],
@@ -24,21 +22,53 @@ class SpiralPlotter:
             complex(1,0), # heading
             complex(0,0)  # previous heading
         ]
+        return MatrixState(n, state, LEFT, FORWARD)
 
+
+    def __init__(self, n, state, left, forward):
+        self.n = n
+        self._left    = left
+        self._forward = forward
+        self.state    = state
+
+    def left(self):
+        return MatrixState(self.n, np.matmul(self._left, self.state), self._left, self._forward)
+
+    def forward(self):
+        return MatrixState(self.n, np.matmul(self._forward, self.state), self._left, self._forward)
+
+    def xy(self):
+        return (round(self.state[0].real,10), round(self.state[0].imag, 10))
+
+    def id(self):
+        return self.xy()
+
+    def heading(self):
+        return self.state[1]
+
+    def prev_heading(self):
+        return self.state[2]
+
+
+class SpiralPlotter:
+
+    def init(self, n):
+        return MatrixState.init(n)
+
+    def spiral(self, n, length=None, yield_forward_only=False):
+        length = n ** 2 if length is None else length
+        state = self.init(n)
         visited = set()
 
-        to_xy = lambda state: (round(state[0].real,8), round(state[0].imag, 8))
-
         while length > 0:
-            xy = to_xy(state)
-            visited.add(xy)
-            if not yield_forward_only or (yield_forward_only and state[1]==state[2]):
+            visited.add(state.id())
+            if not yield_forward_only or (yield_forward_only and state.heading()==state.prev_heading()):
                 length = length - 1
-                yield xy
+                yield state.xy()
 
-            next = np.matmul(LEFT, state)
-            if to_xy(np.matmul(LEFT, next)) in visited:
-                next = np.matmul(FORWARD, state)
+            next = state.left()
+            if next.left().id() in visited:
+                next = state.forward()
 
             state = next
 

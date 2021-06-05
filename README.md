@@ -34,7 +34,7 @@ Is this true chaos? It is hard to say. Chaos is conventionally defined as sensit
 
 The generation algorithm itself is very simple. The algorithm mutates a complex state vector once per loop by multiplying the state vector by an operation matrix - either LEFT or FORWARD. LEFT adds the current direction to the current position, then rotates the current direction left. FORWARD adds the current direction to the current position, and leaves the current direction unchanged. Both operations also keep track of the previous direction by updating the previous direction vector with the current direction vector before updating the current direction vector with a new value, if any.
 
-The algorithm will turn LEFT by default, but doing this will cause the next operation to intersect with a previously visited point, it moves FORWARD instead. For n=3,4 and 6 this produces a well-behaved, regular spiral but for all other values of n it appears to produce a so-called "chaotic spiral". 
+The algorithm will turn LEFT by default, but if doing this will cause the next operation to intersect with a previously visited point, it moves FORWARD instead. For n=3,4 and 6 this produces a well-behaved, regular spiral but for all other values of n it appears to produce a so-called "chaotic spiral". 
 
 The rounding operation used to detect intersection somewhat arbitrarily chooses to round to 8 decimal places of precision. It seems unlikely that this directly contributes to the emergence of chaotic behaviour, but I haven't conclusively proved that it doesn't either.
 
