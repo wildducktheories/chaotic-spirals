@@ -114,6 +114,55 @@ class Vectors:
         )
 
 
+class VectorState:
+    """
+        Represents a spiral state in terms of a linear combination of unit vectors of the form e^i*(2*pi*k/n)
+
+        The main difference between this class and MatrixState is that state is maintained as vectors of integers
+        rather than floats and floats are only used when converting a state into an xy coordinate.
+    """
+    def init(n):
+        p=np.zeros(shape=(n), dtype=int)
+        return VectorState(n, p, 0, None, Vectors(n))
+
+    def __init__(self, n, p, d, prev_d, vectors):
+        self.n = n
+        self.p = (p - np.min(p[1:]))
+        self.d = d
+        self.prev_d = prev_d
+        self.vectors = vectors
+
+    def id(self):
+        return self.vectors.to_id(self.p)
+
+    def xy(self):
+        return self.vectors.to_xy(self.p)
+
+    def left(self):
+        p=np.copy(self.p)
+        p[self.d] = p[self.d]+1
+        d = (self.d+1)%self.n
+        return VectorState(self.n, p, d, self.d, self.vectors)
+
+    def forward(self):
+        p=np.copy(self.p)
+        p[self.d] = p[self.d]+1
+        return VectorState(self.n, p, self.d, self.d, self.vectors)
+
+    def heading(self):
+        return self.d
+
+    def prev_heading(self):
+        return self.prev_d
+
+    def __repr__(self):
+        return str(self)
+
+    def __str__(self):
+        left=self.left()
+        forward=self.forward()
+        return f"id={self.id()} xy={self.xy()} p={self.p} d={self.d} prev_d={self.prev_d} left={left.id()}@{left.d} forward={forward.id()}@{forward.d}"
+
 class SpiralPlotter:
 
     def init(self, n):
