@@ -74,8 +74,8 @@ class Vectors:
         self.o = o
         self.x = np.zeros(shape=(m,n),dtype=int)
         self.y = np.zeros(shape=(m,n),dtype=int)
-        self.x[0:m,0:m]=np.identity(m, dtype=int)
-        self.y[0:m,0:m]=np.identity(m, dtype=int)
+        self.x[0:m,0:m]=np.identity(m)
+        self.y[0:m,0:m]=np.identity(m)
         if o == 0:
             self.x[0:,self.m:]=-np.identity(m)
             self.y[0:,self.m:]=-np.identity(m)
@@ -87,27 +87,38 @@ class Vectors:
     def _reduce(self, c):
         l = len(c)
         d = dict(zip(np.round(c,8), range(0, l)))
-        m = np.identity(l,dtype=int)
+        m = np.identity(l)
+        one_index = d[1.0] if 1.0 in d else None
         for x in range(0, l):
-            a=np.abs(c[x])
-            if a in d:
+            a=np.abs(np.round(c[x],8))
+            if np.abs(np.round(a-0.5, 8)) < 1e-8:
+                if not one_index is None:
+                    m[x,x] = 0
+                    m[one_index,x] += np.round(c[x], 8)
+            elif a < 1e-8:
+                 m[x,x] = 0
+            elif a in d:
                 i=d[a]
-                m[x,x]=0
-                m[i,x]=np.int32(np.sign(c[x]+0.1))
+                if not a < 1e-8:
+                    m[x,x]=0
+                    m[i,x]=np.sign(c[x]+0.1)
         return m
+
+    def to_reduced_id(self, p):
+        return (
+            tuple(np.matmul(self.reductions[0], np.matmul(self.x, p))),
+            tuple(np.matmul(self.reductions[1], np.matmul(self.y, p)))
+        )
 
 
     def to_id(self, p):
-        # return (
-        #     tuple(np.matmul(self.reductions[0], np.matmul(self.x, p))),
-        #     tuple(np.matmul(self.reductions[1], np.matmul(self.y, p)))
-        # )
         return (
             tuple(np.matmul(self.x, p)),
             tuple(np.matmul(self.y, p))
         )
 
     def to_xy(self, p):
+        p=p-np.min(p) # sum of all vectors is zero
         return (
             np.round(np.sum(np.matmul(self.coefficients[:,0],np.matmul(self.x, p))),8),
             np.round(np.sum(np.matmul(self.coefficients[:,1],np.matmul(self.y, p))),8)
@@ -135,6 +146,9 @@ class VectorState:
     def id(self):
         return self.vectors.to_id(self.p)
 
+    def reduced_id(self):
+        return self.vectors.to_reduced_id(self.p)
+
     def xy(self):
         return self.vectors.to_xy(self.p)
 
@@ -161,7 +175,7 @@ class VectorState:
     def __str__(self):
         left=self.left()
         forward=self.forward()
-        return f"id={self.id()} xy={self.xy()} p={self.p} d={self.d} prev_d={self.prev_d} left={left.id()}@{left.d} forward={forward.id()}@{forward.d}"
+        return f"id={self.id()} reduced_id={self.reduced_id()} xy={self.xy()} p={self.p} d={self.d} prev_d={self.prev_d} left={left.id()}@{left.d} forward={forward.id()}@{forward.d}"
 
 class SpiralPlotter:
 
@@ -177,7 +191,7 @@ class SpiralPlotter:
             transform = lambda s: s.xy()
 
         if not id:
-            id = lambda s: s.xy()
+            id = lambda s: s.reduced_id()
 
         state = initial
         visited = set()
