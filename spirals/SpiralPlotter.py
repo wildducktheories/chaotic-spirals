@@ -165,22 +165,32 @@ class VectorState:
 
 class SpiralPlotter:
 
-    def init(self, n):
-        return MatrixState.init(n)
+    def spiral(self, n, length=None, initial=None,  filter=None, transform=None, id=None):
 
-    def spiral(self, n, length=None, yield_forward_only=False):
-        length = n ** 2 if length is None else length
-        state = self.init(n)
+        if not initial:
+            initial = VectorState.init(n)
+
+        if not filter:
+            filter = lambda s: True
+
+        if not transform:
+            transform = lambda s: s.xy()
+
+        if not id:
+            id = lambda s: s.xy()
+
+        state = initial
         visited = set()
+        length = n ** 2 if length is None else length
 
         while length > 0:
-            visited.add(state.id())
-            if not yield_forward_only or (yield_forward_only and state.heading()==state.prev_heading()):
+            visited.add(id(state))
+            if filter(state):
                 length = length - 1
-                yield state.xy()
+                yield transform(state)
 
             next = state.left()
-            if next.left().id() in visited:
+            if id(next.left()) in visited:
                 next = state.forward()
 
             state = next
