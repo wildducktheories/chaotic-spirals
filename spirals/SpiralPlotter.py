@@ -49,6 +49,70 @@ class MatrixState:
     def prev_heading(self):
         return self.state[2]
 
+class Vectors:
+    """
+        This class knows how to represent the n unit vectors of the form e^i(2*pi*k/n)
+        for 0 <= k < n and the symmeties between them.
+
+        It also knows how to map an n-dimensional vector space down into a cross
+        product of two floor((n+1)/2) vector spaces by matching vectors
+        which are additive inverses (n is even) or complex conjugates (n is odd).
+
+        Finally, it knows how to project the vector space into a 2D space by
+        multiplying the id vectors with cosine and cosine coefficients of the unit
+        vectors and summing the results.
+
+    """
+    def __init__(self, n):
+        m=int(n/2) if int(n%2) == 0 else int((n+1)/2)
+        o=n%2
+        self.coefficients=np.round(np.array([
+            [np.cos(math.pi*2*i/n), np.sin(math.pi*2*i/n)] for i in range(0,m)
+        ]), 8)
+        self.m = m
+        self.n = n
+        self.o = o
+        self.x = np.zeros(shape=(m,n),dtype=int)
+        self.y = np.zeros(shape=(m,n),dtype=int)
+        self.x[0:m,0:m]=np.identity(m, dtype=int)
+        self.y[0:m,0:m]=np.identity(m, dtype=int)
+        if o == 0:
+            self.x[0:,self.m:]=-np.identity(m)
+            self.y[0:,self.m:]=-np.identity(m)
+        else:
+            self.x[1:,self.m:]= np.fliplr(np.identity(m-1))
+            self.y[1:,self.m:]=-np.fliplr(np.identity(m-1))
+        self.reductions = [ self._reduce(self.coefficients[:,i]) for i in [0,1]]
+
+    def _reduce(self, c):
+        l = len(c)
+        d = dict(zip(np.round(c,8), range(0, l)))
+        m = np.identity(l,dtype=int)
+        for x in range(0, l):
+            a=np.abs(c[x])
+            if a in d:
+                i=d[a]
+                m[x,x]=0
+                m[i,x]=np.int32(np.sign(c[x]+0.1))
+        return m
+
+
+    def to_id(self, p):
+        # return (
+        #     tuple(np.matmul(self.reductions[0], np.matmul(self.x, p))),
+        #     tuple(np.matmul(self.reductions[1], np.matmul(self.y, p)))
+        # )
+        return (
+            tuple(np.matmul(self.x, p)),
+            tuple(np.matmul(self.y, p))
+        )
+
+    def to_xy(self, p):
+        return (
+            np.round(np.sum(np.matmul(self.coefficients[:,0],np.matmul(self.x, p))),8),
+            np.round(np.sum(np.matmul(self.coefficients[:,1],np.matmul(self.y, p))),8)
+        )
+
 
 class SpiralPlotter:
 
