@@ -213,7 +213,7 @@ class VectorState:
 
 class SpiralPlotter:
 
-    def spiral(self, n, length=None, initial=None,  filter=None, transform=None, id=None):
+    def spiral(self, n, length=None, initial=None,  filter=None, transform=None):
 
         if not initial:
             initial = VectorState.init(n)
@@ -222,23 +222,20 @@ class SpiralPlotter:
             filter = lambda s: True
 
         if not transform:
-            transform = lambda s: s.xy()
-
-        if not id:
-            id = lambda s: s.id()
+            transform = lambda s: s
 
         state = initial
         visited = set()
         length = n ** 2 if length is None else length
 
         while length > 0:
-            visited.add(id(state))
+            visited.add(state.id())
             if filter(state):
                 length = length - 1
                 yield transform(state)
 
             next = state.left()
-            if id(next.stop()) in visited:
+            if next.stop().id() in visited:
                 next = state.forward()
 
             state = next
