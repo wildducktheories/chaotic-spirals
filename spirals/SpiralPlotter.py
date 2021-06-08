@@ -49,6 +49,40 @@ class MatrixState:
     def prev_heading(self):
         return self.state[2]
 
+    def stop(self):
+        return StopState.init(self.forward())
+
+class StopState:
+    def init(state):
+        return StopState(state.n, state.id(), state.xy(), state.heading())
+
+    def __init__(self, n, id, xy, heading):
+        self.n = n
+        self._id = id
+        self._xy = xy
+        self._heading = heading
+
+    def id(self):
+        return self._id
+
+    def xy(self):
+        return self._xy
+
+    def left(self):
+        return self
+
+    def forward(self):
+        return self
+
+    def stop(self):
+        return self
+
+    def heading(self):
+        return self._heading
+
+    def prev_heading(self):
+        return self._heading
+
 class Vectors:
     """
         This class knows how to represent the n unit vectors of the form e^i(2*pi*k/n)
@@ -94,7 +128,7 @@ class Vectors:
             if np.abs(np.round(a-0.5, 8)) < 1e-8:
                 if not one_index is None:
                     m[x,x] = 0
-                    m[one_index,x] += np.round(c[x], 8)
+                    m[one_index,x] += np.round(c[x], 1)
             elif a < 1e-8:
                  m[x,x] = 0
             elif a in d:
@@ -104,18 +138,12 @@ class Vectors:
                     m[i,x]=np.sign(c[x]+0.1)
         return m
 
-    def to_reduced_id(self, p):
+    def to_id(self, p):
         return (
             tuple(np.matmul(self.reductions[0], np.matmul(self.x, p))),
             tuple(np.matmul(self.reductions[1], np.matmul(self.y, p)))
         )
 
-
-    def to_id(self, p):
-        return (
-            tuple(np.matmul(self.x, p)),
-            tuple(np.matmul(self.y, p))
-        )
 
     def to_xy(self, p):
         p=p-np.min(p) # sum of all vectors is zero
@@ -146,9 +174,6 @@ class VectorState:
     def id(self):
         return self.vectors.to_id(self.p)
 
-    def reduced_id(self):
-        return self.vectors.to_reduced_id(self.p)
-
     def xy(self):
         return self.vectors.to_xy(self.p)
 
@@ -163,6 +188,9 @@ class VectorState:
         p[self.d] = p[self.d]+1
         return VectorState(self.n, p, self.d, self.d, self.vectors)
 
+    def stop(self):
+        return StopState.init(self.forward())
+
     def heading(self):
         return self.d
 
@@ -175,7 +203,7 @@ class VectorState:
     def __str__(self):
         left=self.left()
         forward=self.forward()
-        return f"id={self.id()} reduced_id={self.reduced_id()} xy={self.xy()} p={self.p} d={self.d} prev_d={self.prev_d} left={left.id()}@{left.d} forward={forward.id()}@{forward.d}"
+        return f"id={self.id()} xy={self.xy()} p={self.p} d={self.d} prev_d={self.prev_d} left={left.id()}@{left.d} forward={forward.id()}@{forward.d}"
 
 class SpiralPlotter:
 
@@ -191,7 +219,7 @@ class SpiralPlotter:
             transform = lambda s: s.xy()
 
         if not id:
-            id = lambda s: s.reduced_id()
+            id = lambda s: s.id()
 
         state = initial
         visited = set()
@@ -204,7 +232,7 @@ class SpiralPlotter:
                 yield transform(state)
 
             next = state.left()
-            if id(next.left()) in visited:
+            if id(next.stop()) in visited:
                 next = state.forward()
 
             state = next
