@@ -102,7 +102,7 @@ class Vectors:
 
     """
     def __init__(self, n):
-        m=int(n/2) if int(n%2) == 0 else int((n+1)/2)
+        m=int((n+1)/2)
         o=n%2
         self.coefficients=np.round(np.array([
             [np.cos(math.pi*2*i/n), np.sin(math.pi*2*i/n)] for i in range(0,m)
@@ -129,17 +129,17 @@ class Vectors:
         one_index = d[1.0] if 1.0 in d else None
         for x in range(0, l):
             a=np.abs(np.round(c[x],8))
-            if np.abs(np.round(a-0.5, 8)) < 1e-8:
+            if np.abs(np.round(a*2-1, 8)) < 1e-8:
                 if not one_index is None:
                     m[x,x] = 0
-                    m[one_index,x] += np.round(c[x], 1)
+                    m[one_index,x] += np.sign(c[x])/2
             elif a < 1e-8:
                  m[x,x] = 0
             elif a in d:
                 i=d[a]
                 if not a < 1e-8:
                     m[x,x]=0
-                    m[i,x]=np.sign(c[x]+0.1)
+                    m[i,x]=np.sign(c[x])
         return m
 
     def to_id(self, p):
