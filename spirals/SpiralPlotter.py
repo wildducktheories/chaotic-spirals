@@ -53,6 +53,10 @@ class MatrixState:
         return StopState.init(self.forward())
 
 class StopState:
+    """
+        This stage can never progress anywhere, but it can be used to report the final
+        id and xy coordinate reached by a previous state.
+    """
     def init(state):
         return StopState(state.n, state.id(), state.xy(), state.heading())
 
@@ -86,13 +90,13 @@ class StopState:
 class Vectors:
     """
         This class knows how to represent the n unit vectors of the form e^i(2*pi*k/n)
-        for 0 <= k < n and the symmeties between them.
+        for 0 <= k < n and the symmetries between them.
 
         It also knows how to map an n-dimensional vector space down into a cross
         product of two floor((n+1)/2) vector spaces by matching vectors
         which are additive inverses (n is even) or complex conjugates (n is odd).
 
-        Finally, it knows how to project the vector space into a 2D space by
+        Finally, it knows how to project the vector space into 2D space by
         multiplying the id vectors with cosine and cosine coefficients of the unit
         vectors and summing the results.
 
