@@ -140,6 +140,8 @@ class Vectors:
                 if not a < 1e-8:
                     m[x,x]=0
                     m[i,x]=np.sign(c[x])
+        # eliminate all zero rows from reduction matrix
+        m = m[[not np.all(a) for a in m == 0]]
         return m
 
     def to_id(self, p):
