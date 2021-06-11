@@ -120,7 +120,21 @@ class Vectors:
         else:
             self.x[1:,self.m:]= np.fliplr(np.identity(m-1))
             self.y[1:,self.m:]=-np.fliplr(np.identity(m-1))
+
         self.reductions = [ self._reduce(self.coefficients[:,i]) for i in [0,1]]
+
+        # eliminate all rows n i where the corresponding row in t is all zero
+        shrink=lambda  i,t : i[[not np.all(r) for r in (t == 0)]]
+
+        # coefficients that convert the id tuple into xy coordinates
+        self.id_coefficients = [
+            shrink(self.coefficients[:, i], self.reductions[i]) for i in [0,1]
+        ]
+
+        # shrink the reductions to eliminate the zeros
+        self.reductions = [
+            shrink(self.reductions[i], self.reductions[i]) for i in [0,1]
+        ]
 
     def _reduce(self, c):
         l = len(c)
@@ -140,8 +154,6 @@ class Vectors:
                 if not a < 1e-8:
                     m[x,x]=0
                     m[i,x]=np.sign(c[x])
-        # eliminate all zero rows from reduction matrix
-        m = m[[not np.all(a) for a in m == 0]]
         return m
 
     def to_id(self, p):
@@ -152,11 +164,7 @@ class Vectors:
 
 
     def to_xy(self, p):
-        p=p-np.min(p) # sum of all vectors is zero
-        return (
-            np.round(np.sum(np.matmul(self.coefficients[:,0],np.matmul(self.x, p))),8),
-            np.round(np.sum(np.matmul(self.coefficients[:,1],np.matmul(self.y, p))),8)
-        )
+        return tuple([np.matmul(self.to_id(p)[i], self.id_coefficients[i]) for i in [0, 1]])
 
 
 class VectorState:
