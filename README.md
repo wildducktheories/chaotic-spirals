@@ -28,7 +28,11 @@ Most interesting of all is n=12 which one might intuitively think would, because
 ![n=12 (144 iterations)](images/n=12.png)
 ![n=12 (1024 iterations)](images/n=12-1024.png)
 
-Is this true chaos? It is hard to say. Chaos is conventionally defined as sensitivity to initial conditions. It is possible that the behaviour observed here is simply due to the rounding operation that is required at one key point in each iteration of the generation loop. The question that still remains, however, is why the behaviour of n=12 seems to be so different to every other value of n.
+Is this true chaos?
+
+If chaos is defined by the presence of sensitive dependence on initial conditions, this system does seem chaotic. A gallery of images which shows what happens to the n=12 case when the initial conditions are varied sligtly can be viewed in this [FaceBook post](https://www.facebook.com/jon.seymour.au/posts/10165187512170481).
+
+
 
 # Algorithm
 
@@ -36,7 +40,13 @@ The generation algorithm itself is very simple. The algorithm mutates a complex 
 
 The algorithm will turn LEFT by default, but if doing this will cause the next operation to intersect with a previously visited point, it moves FORWARD instead. For n=3,4 and 6 this produces a well-behaved, regular spiral but for all other values of n it appears to produce a so-called "chaotic spiral". 
 
-The rounding operation used to detect intersection somewhat arbitrarily chooses to round to 8 decimal places of precision. It seems unlikely that this directly contributes to the emergence of chaotic behaviour, but I haven't conclusively proved that it doesn't either.
+The initial versions of the algorithm used the MatrixState class which did involve a lot of floating point arithmetic, particularly in the paths that fed into the decision about whether to turn left or go forward. It was, at least principle, possible that the chaotic behaviour arose from the use of floating point arithmetic to decide whether to turn left or go forward.
+
+However, the current versions of the algorithm use the VectorState class instead and are purely vector based and the decision to go forward rather than left is precisely determined by comparison of integer vectors, rather than dependent on the vagaries of the floating point representation. With this being true, we can say that the chaotic behaviour is inherent in the system itself and not due to the vagaries of the floating point representations.
+
+It is also true that the chaos only arises because each action leaves a trace in the world (in the form of an element in the visited set) and this trace then influences future action and if it wasn't for this memory, the behaviour would not be chaotic.
+
+Chaos arises, therefore, as the interplay between a system of equations and the state of the world.
 
 ![algorithm](images/algo.png)
 
@@ -50,7 +60,7 @@ Then visit 8888 of your docker machine with a web browser. If you need the token
 
     make docker-token
 
-Select the coding-challenge notebook, and select run.
+Select the start-here notebook, and select run.
 
 If you already have Python 3 installed locally, you might prefer to run jupyter locally. In which case:
 
