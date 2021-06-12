@@ -157,6 +157,7 @@ class Vectors:
         return m
 
     def to_id(self, p):
+        p = p - np.min(p[1:])
         return (
             tuple(np.matmul(self.reductions[0], np.matmul(self.x, p))),
             tuple(np.matmul(self.reductions[1], np.matmul(self.y, p)))
@@ -180,7 +181,7 @@ class VectorState:
 
     def __init__(self, n, p, d, prev_d, vectors):
         self.n = n
-        self.p = (p - np.min(p[1:]))
+        self.p = p
         self.d = d
         self.prev_d = prev_d
         self.vectors = vectors
