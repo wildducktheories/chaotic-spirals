@@ -2,7 +2,7 @@
 
 This repository contains a simple algorithm for drawing "chaotic" spirals. 
 
-In actual fact, it also produces nice regular polygonal spirals that one might expect from such an algorithm, but it only does this for n=3,4 or 6.
+In actual fact, it also produces nice regular polygonal spirals that one might expect from such an algorithm, but it only does this for n=3, 4 or 6.
 
 ![n=3](images/n=3.png)
 ![n=4](images/n=4.png)
@@ -66,7 +66,7 @@ If you already have Python 3 installed locally, you might prefer to run jupyter 
 
     make local-build && make local-run
 
-Your browser should open directly, then select the coding-challenge notebook as above.
+Your browser should open directly, then select the start-here notebook as above.
 
 
 

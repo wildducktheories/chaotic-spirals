@@ -184,13 +184,13 @@ class Vectors:
         #
         # we apply the collapse function to produce a matrix that can
         # reduces a state vector to a reduced state vector in which all
-        # dimensions have
+        # dimensions have been reduced.
         #
         self.id_reduction = collapse(m)
 
         #
-        # we apply the collapse function to coefficients vector to produce
-        # the set of coefficients such that set(np.unique(mp.abs(self.coefficients[i]))) =
+        # we apply the collapse function to produce a set of coefficients
+        # that are not integer multiples of each other
         #
         self.id_coefficients = collapse(_coefficients)
 
