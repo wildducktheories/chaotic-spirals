@@ -1,1 +1,2 @@
-from .SpiralPlotter import SpiralPlotter
+from .functions import *
+from .classes import *

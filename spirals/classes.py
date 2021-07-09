@@ -1,6 +1,5 @@
-import math
-import matplotlib.pyplot as plt
 import numpy as np
+import math
 
 class MatrixState:
     def init(n):
@@ -261,49 +260,3 @@ class VectorState:
         left=self.left()
         forward=self.forward()
         return f"id={self.id()} xy={self.xy()} p={self.p} d={self.d} prev_d={self.prev_d} left={left.id()}@{left.d} forward={forward.id()}@{forward.d}"
-
-class SpiralPlotter:
-
-    def spiral(self, n, length=None, initial=None,  visited=None, filter=None, transform=None):
-
-        if not initial:
-            initial = VectorState.init(n)
-
-        if not filter:
-            filter = lambda s: True
-
-        if not transform:
-            transform = lambda s: s
-
-        if not visited:
-            visited = set()
-
-        state = initial
-        length = n ** 2 if length is None else length
-
-        while length > 0:
-            visited.add(state.id())
-            if filter(state):
-                length = length - 1
-                yield transform(state)
-
-            next = state.left()
-            if next.stop().id() in visited:
-                next = state.forward()
-
-            state = next
-
-    def plot_spiral(self, n, s, plot=True, scatter=True, title=None):
-        v = np.array([(np.array(p)) for p in s])
-        fig = plt.figure(figsize=(6,6))
-        ax=plt.axes()
-        #ax.set_facecolor('#f1c738')
-        if not title:
-            title=f"n={n}"
-        plt.title(title)
-        plt.gca().set_aspect("equal")
-        if plot:
-            plt.plot(v[:,0], v[:,1])
-        if scatter:
-            plt.scatter(v[:,0], v[:,1], marker=".")
-        plt.show()
