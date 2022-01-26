@@ -69,5 +69,6 @@ If you already have Python 3 installed locally, you might prefer to run jupyter 
 Your browser should open directly, then select the start-here notebook as above.
 
 
+# Other Resources
 
-
+[@nick_treweek](https://twitter.com/nick_treweek) has implemented this algorithm as an interactive JavaScript [page](http://secondworldstudios.com.au/spiral/). Nick's solution also makes an attempt at detecting intersections with previous steps (rather than just previous points) although because he only uses a 1-step look ahead, this eventually results in chaos too after n=14. Nick is also responsible for bringing to my intention the relationship r = 2n/(n-2) which relates the number of sides of a polygon to the number of rotations about a vertex required to achieve identity. This equation only has integer solutions for n in {3,4,6}. I generalise this insight in some more detail [here](https://github.com/wildducktheories/curious-factors) including identifying a correspondence between integer solutions of r=2n/(n-r) and complex solutions for r'=a'n'/(n-a') where a' = i, n' = e^(2pi/n.i)+i, r' = e^(2pi/r.i)+i
